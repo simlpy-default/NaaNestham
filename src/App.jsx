@@ -2,46 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Menu, X, Phone, Mail, MapPin, Heart, Calendar, Users, 
   BookOpen, User, Languages, CheckCircle, Smartphone, Camera, 
-  Facebook, ChevronRight, ArrowLeft, Home, Youtube,
-  MessageSquare, Send, Lock, Trash2, Loader, AlertTriangle
+  Facebook, ChevronRight, ArrowLeft, Youtube
 } from 'lucide-react';
-
-// --- FIREBASE IMPORTS ---
-import { initializeApp } from 'firebase/app';
-import { 
-  getFirestore, collection, addDoc, doc, deleteDoc, getDocs, 
-  serverTimestamp 
-} from 'firebase/firestore';
-import { 
-  getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken 
-} from 'firebase/auth';
-
-// --- ROBUST FIREBASE INITIALIZATION ---
-let app = null;
-let auth = null;
-let db = null;
-let isFirebaseReady = false;
-let appId = 'default-app-id';
-
-try {
-  // Check if config exists in the environment
-  if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-    const firebaseConfig = JSON.parse(__firebase_config);
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    if (typeof __app_id !== 'undefined') {
-        appId = __app_id;
-    }
-    isFirebaseReady = true;
-    console.log("Firebase initialized successfully.");
-  } else {
-    console.warn("Firebase config not found. Running in static mode.");
-  }
-} catch (error) {
-  console.error("Firebase initialization failed:", error);
-  isFirebaseReady = false;
-}
 
 // --- DATA: TRUST INFO & TRUSTEES ---
 
@@ -60,16 +22,50 @@ const TRUST_INFO = {
   email: "naanestham2013@gmail.com"
 };
 
+// UPDATED TRUST COMMITTEE (11th Anniversary - New Body)
 const HEADS = [
-  { name_en: "B.V. Purnachander", name_te: "బి.వి. పూర్ణచందర్", role_en: "Honorary Chairman", role_te: "గౌరవ చైర్మన్", image: "/images/trustees/purnachander.jpeg" },
-  { name_en: "Katla Satyanarayana", name_te: "కట్ల సత్యనారాయణ", role_en: "Chairman", role_te: "చైర్మన్", image: "/images/trustees/satyanarayana.jpeg" },
-  { name_en: "Penta Srinivas", name_te: "పెంట శ్రీనివాస్", role_en: "Finance Trustee", role_te: "ఫైనాన్స్ ట్రస్టీ", image: "/images/trustees/srinivas_p.jpeg" },
-  { name_en: "Vengaldas Ashok", name_te: "వెంగళదాస్ అశోక్", role_en: "Organising Trustee", role_te: "ఆర్గనైజింగ్ ట్రస్టీ", image: "/images/trustees/ashok.jpeg" },
-  { name_en: "Burla Venkateshwarlu", name_te: "బూర్ల వెంకటేశ్వర్లు", role_en: "Managing Trustee", role_te: "మేనేజింగ్ ట్రస్టీ", image: "/images/trustees/venkateshwarlu.jpeg" },
-  { name_en: "V. Laxminarayana", name_te: "వి. లక్ష్మీనారాయణ", role_en: "Chief Advisor", role_te: "ముఖ్య సలహాదారు", image: "/images/trustees/laxminarayana.jpeg" },
-  { name_en: "Devasani Srinivas", name_te: "దేవసాని శ్రీనివాస్", role_en: "Vice Chairman", role_te: "వైస్ చైర్మన్", image: "/images/trustees/srinivas_d.jpg" },
-  { name_en: "Namani Suvarna", name_te: "నామని సువర్ణ", role_en: "Vice Chairman", role_te: "వైస్ చైర్మన్", image: "/images/trustees/suvarna.jpg" },
-  { name_en: "Baireddy Rajireddy", name_te: "బైరెడ్డి రాజిరెడ్డి", role_en: "Co-Chief Advisor", role_te: "కో-చీఫ్ అడ్వైజర్", image: "/images/trustees/rajireddy.jpg" },
+  // --- Honorary Presidents ---
+  { name_en: "Bairi Purnachander", name_te: "బైరి పూర్ణ చందర్", role_en: "Honorary President", role_te: "గౌరవ అధ్యక్షుడు", image: "/images/trustees/purnachander.jpeg" },
+  { name_en: "Arshanapelli Rajeshwar Rao", name_te: "అర్షనపెల్లి రాజేశ్వర్ రావు", role_en: "Honorary President", role_te: "గౌరవ అధ్యక్షుడు", image: null },
+  { name_en: "Devasani Srinivas", name_te: "దేవసాని శ్రీనివాస్", role_en: "Honorary President", role_te: "గౌరవ అధ్యక్షుడు", image: "/images/trustees/srinivas_d.jpg" },
+  { name_en: "Burla Venkateshwarlu", name_te: "బూర్ల వెంకటేశ్వర్లు", role_en: "Honorary President", role_te: "గౌరవ అధ్యక్షుడు", image: "/images/trustees/venkateshwarlu.jpeg" },
+  { name_en: "Penta Srinivas", name_te: "పెంట శ్రీనివాస్", role_en: "Honorary President", role_te: "గౌరవ అధ్యక్షుడు", image: "/images/trustees/srinivas_p.jpeg" },
+
+  // --- Main Executive Committee ---
+  { name_en: "Katla Satyanarayana", name_te: "కట్ల సత్యనారాయణ", role_en: "President", role_te: "అధ్యక్షుడు", image: "/images/trustees/satyanarayana.jpeg" },
+  { name_en: "Veeragoni Laxmi Narayana", name_te: "వీరగోని లక్ష్మి నారాయణ", role_en: "General Secretary", role_te: "ప్రధాన కార్యదర్శి", image: "/images/trustees/laxminarayana.jpeg" },
+  { name_en: "Ponaganti Sumathi", name_te: "పొనగంటి సుమతి", role_en: "Women's President", role_te: "మహిళా అధ్యక్షురాలు", image: null },
+  { name_en: "Vala Neeraja", name_te: "వాల నీరజ", role_en: "Women's Secretary", role_te: "మహిళా కార్యదర్శి", image: null },
+  { name_en: "Asampalli Shankar", name_te: "ఆసంపల్లి శంకర్", role_en: "Treasurer", role_te: "కోశాధికారి", image: null },
+  { name_en: "Busarapu Srinivas", name_te: "బూసారపు శ్రీనివాస్", role_en: "Executive Secretary", role_te: "నిర్వాహక కార్యదర్శి", image: null },
+  { name_en: "Rangu Ramulu", name_te: "రంగు రాములు", role_en: "Joint Secretary", role_te: "సహాయ కార్యదర్శి", image: null },
+
+  // --- Vice Presidents ---
+  { name_en: "Thaniparthi Sudhakar Rao", name_te: "తానిపర్తి సుధాకర్ రావు", role_en: "Vice President", role_te: "ఉపాధ్యక్షుడు", image: null },
+  { name_en: "Vala Neeraja", name_te: "వాల నీరజ", role_en: "Vice President", role_te: "ఉపాధ్యక్షురాలు", image: null },
+  { name_en: "Vengaldas Ashok", name_te: "వెంగళదాస్ అశోక్", role_en: "Vice President", role_te: "ఉపాధ్యక్షుడు", image: "/images/trustees/ashok.jpeg" },
+  { name_en: "Vanga Satyanarayana", name_te: "వంగ సత్యనారాయణ", role_en: "Vice President", role_te: "ఉపాధ్యక్షుడు", image: null },
+  { name_en: "Kothireddy Mallareddy", name_te: "కొత్తిరెడ్డి మల్లారెడ్డి", role_en: "Vice President", role_te: "ఉపాధ్యక్షుడు", image: null },
+  { name_en: "Baireddy Rajireddy", name_te: "బైరెడ్డి రాజిరెడ్డి", role_en: "Vice President", role_te: "ఉపాధ్యక్షుడు", image: "/images/trustees/rajireddy.jpg" },
+
+  // --- Organizing Secretaries ---
+  { name_en: "Vanga Srishailam", name_te: "వంగ శ్రీశైలం", role_en: "Organizing Secretary", role_te: "ఆర్గనైజింగ్ కార్యదర్శి", image: null },
+  { name_en: "Namani Suvarna", name_te: "నామని సువర్ణ", role_en: "Organizing Secretary", role_te: "ఆర్గనైజింగ్ కార్యదర్శి", image: "/images/trustees/suvarna.jpg" },
+  { name_en: "Katla Sampath", name_te: "కట్ల సంపత్", role_en: "Organizing Secretary", role_te: "ఆర్గనైజింగ్ కార్యదర్శి", image: null },
+  { name_en: "Pegada Swarnalatha", name_te: "పెగడ స్వర్ణలత", role_en: "Organizing Secretary", role_te: "ఆర్గనైజింగ్ కార్యదర్శి", image: null },
+
+  // --- Information Secretaries ---
+  { name_en: "Burra Anjaneyulu", name_te: "బుర్ర ఆంజనేయులు", role_en: "Information Secretary", role_te: "సమాచార కార్యదర్శి", image: null },
+  { name_en: "Kunta Anil Kumar", name_te: "కుంట అనిల్ కుమార్", role_en: "Information Secretary", role_te: "సమాచార కార్యదర్శి", image: null },
+
+  // --- Executive Members ---
+  { name_en: "Arshanapelli Laxmi", name_te: "అర్షనపెల్లి లక్ష్మి", role_en: "Executive Member", role_te: "కార్యవర్గ సభ్యురాలు", image: null },
+  { name_en: "Singireddy Vijayareddy", name_te: "సింగిరెడ్డి విజయారెడ్డి", role_en: "Executive Member", role_te: "కార్యవర్గ సభ్యురాలు", image: null },
+  { name_en: "Theetla Ramesh", name_te: "తీట్ల రమేష్", role_en: "Executive Member", role_te: "కార్యవర్గ సభ్యుడు", image: null },
+  { name_en: "K. Satyanarayana", name_te: "కె. సత్యనారాయణ", role_en: "Executive Member", role_te: "కార్యవర్గ సభ్యుడు", image: null },
+  { name_en: "Palle Veeraswamy", name_te: "పల్లె వీరాస్వామి", role_en: "Executive Member", role_te: "కార్యవర్గ సభ్యుడు", image: null },
+  { name_en: "A. Kanukaiah", name_te: "ఏ. కనుకయ్య", role_en: "Executive Member", role_te: "కార్యవర్గ సభ్యుడు", image: null },
+  { name_en: "B. Ashok", name_te: "బి.అశోక్", role_en: "Executive Member", role_te: "కార్యవర్గ సభ్యుడు", image: null },
 ];
 
 // --- DATA: EVENTS TIMELINE ---
@@ -671,7 +667,7 @@ const HomeHero = ({ lang, handlePageChange }) => (
           Your browser does not support the video tag.
         </video>
       </div>
-      
+       
       {/* Group Photo Container - Placed below video */}
       <div className="w-full max-w-4xl mx-auto mb-8 p-1 bg-white rounded-xl shadow-lg border border-gray-200">
         <div className="w-full h-auto rounded-lg overflow-hidden">
@@ -695,14 +691,14 @@ const HomeHero = ({ lang, handlePageChange }) => (
             </p>
         </div>
       </div>
-      
+       
       <h2 className="text-4xl md:text-6xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-900 to-blue-700 drop-shadow-sm">
         {lang === 'en' ? TRUST_INFO.name_en : TRUST_INFO.name_te}
       </h2>
       <p className="text-xl md:text-2xl max-w-3xl mx-auto mb-10 text-gray-600 font-serif italic">
         "{lang === 'en' ? TRUST_INFO.tagline_en : TRUST_INFO.tagline_te}"
       </p>
-      
+       
       <div className="flex flex-wrap justify-center gap-4">
         <button onClick={() => handlePageChange('donate')} className="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg text-lg font-bold flex items-center transition-transform hover:scale-105">
             <Heart className="w-5 h-5 mr-2 fill-current" /> {lang === 'en' ? "Donate Now" : "విరాళం ఇవ్వండి"}
@@ -970,47 +966,8 @@ const TimelinePage = ({ lang }) => {
   );
 };
 
-// 6. Services Page with Feedback Form (CRASH PROOF)
-const ServicesPage = ({ lang, user }) => {
-  const [formData, setFormData] = useState({ name: '', suggestion: '' });
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Auth Check
-    if (!user) {
-        // If auth isn't ready yet, show alert but DON'T crash
-        alert("Connecting to database... please try again in a few seconds.");
-        return;
-    }
-
-    if (formData.suggestion.trim() !== '') {
-      setIsSubmitting(true);
-      try {
-        // Direct addition, no complex requirements
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'suggestions'), {
-           name: formData.name || 'Anonymous',
-           suggestion: formData.suggestion,
-           timestamp: serverTimestamp(),
-           userId: user.uid
-        });
-        
-        setIsSubmitted(true);
-        setTimeout(() => {
-            setIsSubmitted(false);
-            setFormData({ name: '', suggestion: '' });
-        }, 5000);
-      } catch (error) {
-          console.error("Error submitting suggestion:", error);
-          alert("Could not save suggestion. Please check your internet connection.");
-      } finally {
-          setIsSubmitting(false);
-      }
-    }
-  };
-
+// 6. Services Page (Simplified - No Feedback Form)
+const ServicesPage = ({ lang }) => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 animate-fadeIn">
       <div className="container mx-auto px-4">
@@ -1058,85 +1015,6 @@ const ServicesPage = ({ lang, user }) => {
                   : "నిరుద్యోగ యువతకు ఉచిత డ్రైవింగ్ స్కూల్. కంప్యూటర్ శిక్షణ మరియు డ్రైవింగ్ లైసెన్సుల జారీ."}
               </p>
             </div>
-        </div>
-
-        {/* FEEDBACK SECTION */}
-        <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
-          {/* Decorative background elements */}
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-amber-500 opacity-10 rounded-full blur-3xl"></div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-            <div>
-               <h3 className="text-3xl font-bold mb-4 flex items-center">
-                  <MessageSquare className="w-8 h-8 mr-3 text-amber-400" />
-                  {lang === 'en' ? "Your Voice Matters" : "మీ అభిప్రాయం మాకు ముఖ్యం"}
-               </h3>
-               <p className="text-blue-100 text-lg mb-6 leading-relaxed">
-                 {lang === 'en' 
-                   ? "We want to do more. What areas should we focus on next? Your suggestions help us serve the community better."
-                   : "మేము ఇంకా మెరుగైన సేవలందించాలనుకుంటున్నాము. భవిష్యత్తులో మేము ఏ సేవా కార్యక్రమాలు చేపడితే బాగుంటుంది? మీ అమూల్యమైన సలహాలు ఇవ్వండి."}
-               </p>
-               <div className="flex items-center space-x-2 text-sm text-blue-200 mt-4">
-                  <Mail className="w-4 h-4" />
-                  <span>{lang === 'en' ? "Or email us directly at:" : "లేదా మాకు మెయిల్ చేయండి:"}</span>
-                  <a href={`mailto:${TRUST_INFO.email}`} className="text-amber-400 font-bold hover:underline">
-                    {TRUST_INFO.email}
-                  </a>
-               </div>
-            </div>
-
-            <div className="bg-white text-gray-800 rounded-xl p-6 shadow-xl">
-              {isSubmitted ? (
-                <div className="text-center py-10 animate-fadeIn">
-                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle className="w-8 h-8 text-green-600" />
-                   </div>
-                   <h4 className="text-xl font-bold text-gray-800 mb-2">{lang === 'en' ? "Thank You!" : "ధన్యవాదాలు!"}</h4>
-                   <p className="text-gray-600">
-                     {lang === 'en' ? "Your suggestion has been saved." : "మీ సలహా మాకు చేరింది. తప్పకుండా పరిశీలిస్తాం."}
-                   </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit}>
-                   <div className="mb-4">
-                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                       {lang === 'en' ? "Your Name (Optional)" : "మీ పేరు (ఐచ్ఛికం)"}
-                     </label>
-                     <input 
-                       type="text" 
-                       value={formData.name}
-                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                       placeholder={lang === 'en' ? "Enter your name" : "మీ పేరు వ్రాయండి"}
-                       disabled={isSubmitting}
-                     />
-                   </div>
-                   <div className="mb-4">
-                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                       {lang === 'en' ? "Your Suggestion" : "మీ సలహా / సూచన"} <span className="text-red-500">*</span>
-                     </label>
-                     <textarea 
-                       rows="4"
-                       required
-                       value={formData.suggestion}
-                       onChange={(e) => setFormData({...formData, suggestion: e.target.value})}
-                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                       placeholder={lang === 'en' ? "What should we work on next?" : "మేము తదుపరి ఏ సేవా కార్యక్రమాలు చేయాలి?"}
-                       disabled={isSubmitting}
-                     ></textarea>
-                   </div>
-                   <button 
-                     type="submit" 
-                     disabled={isSubmitting}
-                     className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-lg shadow-md transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                   >
-                     {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : <>{lang === 'en' ? "Send Suggestion" : "పంపండి"} <Send className="w-4 h-4 ml-2" /></>}
-                   </button>
-                </form>
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -1367,167 +1245,12 @@ const ContactPage = ({ lang }) => (
   </div>
 );
 
-// --- ADMIN MODAL COMPONENT (HIDDEN) ---
-const AdminModal = ({ onClose, user }) => {
-    const [pin, setPin] = useState("");
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [suggestions, setSuggestions] = useState([]);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        // Only fetch if authenticated and user is ready and db exists
-        if (isAuthenticated && user && isFirebaseReady) {
-            setLoading(true);
-            const fetchData = async () => {
-                try {
-                    // Simple fetch without complex orderBy to prevent indexing errors
-                    const snapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'suggestions'));
-                    const data = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
-                    // Sort in Javascript to avoid Indexing requirements
-                    data.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-                    setSuggestions(data);
-                } catch (error) {
-                    console.error("Fetch error:", error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchData();
-        }
-    }, [isAuthenticated, user]);
-
-    const handlePinSubmit = (e) => {
-        e.preventDefault();
-        // Simple PIN for demo purposes - Year of establishment
-        if (pin === "2013") {
-            setIsAuthenticated(true);
-        } else {
-            alert("Incorrect PIN");
-            setPin("");
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!isFirebaseReady) return;
-        if(window.confirm("Delete this suggestion?")) {
-            try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'suggestions', id));
-                // Remove from local state immediately
-                setSuggestions(prev => prev.filter(item => item.id !== id));
-            } catch (error) {
-                console.error("Delete failed", error);
-            }
-        }
-    }
-
-    return (
-        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="bg-gray-800 p-4 flex justify-between items-center">
-                    <h3 className="text-white font-bold flex items-center">
-                        <Lock className="w-5 h-5 mr-2 text-amber-400" /> Admin Panel - Suggestions
-                    </h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white">
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
-
-                {!isFirebaseReady ? (
-                    <div className="p-12 text-center">
-                        <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                        <h4 className="text-xl font-bold mb-2">Service Unavailable</h4>
-                        <p className="text-gray-500">Database connection could not be established.</p>
-                    </div>
-                ) : !isAuthenticated ? (
-                    <div className="p-8 flex flex-col items-center justify-center flex-grow">
-                        <Lock className="w-16 h-16 text-gray-300 mb-4" />
-                        <h4 className="text-xl font-bold mb-4">Enter Access PIN</h4>
-                        <form onSubmit={handlePinSubmit} className="flex gap-2">
-                            <input 
-                                type="password" 
-                                value={pin}
-                                onChange={(e) => setPin(e.target.value)}
-                                className="border rounded px-4 py-2 text-center text-lg tracking-widest w-32"
-                                placeholder="****"
-                                autoFocus
-                            />
-                            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded font-bold">
-                                Unlock
-                            </button>
-                        </form>
-                        <p className="text-xs text-gray-400 mt-4">Hint: Year established</p>
-                    </div>
-                ) : (
-                    <div className="flex-grow overflow-y-auto p-4 bg-gray-50">
-                        {loading ? (
-                            <div className="flex justify-center p-10"><Loader className="animate-spin" /></div>
-                        ) : suggestions.length === 0 ? (
-                            <div className="text-center text-gray-500 py-10">
-                                No suggestions received yet.
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {suggestions.map(item => (
-                                    <div key={item.id} className="bg-white p-4 rounded-lg shadow border border-gray-200">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="font-bold text-blue-900">{item.name}</span>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs text-gray-500">
-                                                    {item.timestamp?.toDate ? item.timestamp.toDate().toLocaleDateString() : 'Just now'}
-                                                </span>
-                                                <button 
-                                                    onClick={() => handleDelete(item.id)}
-                                                    className="text-red-400 hover:text-red-600"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <p className="text-gray-700 bg-gray-50 p-3 rounded">{item.suggestion}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
 // --- MAIN APP COMPONENT ---
 
 const App = () => {
   const [lang, setLang] = useState('en'); // 'en' or 'te'
   const [activePage, setActivePage] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
-  const [showAdmin, setShowAdmin] = useState(false);
-
-  // AUTHENTICATION
-  useEffect(() => {
-    // Only attempt auth if Firebase initialized successfully
-    if (!isFirebaseReady || !auth) return;
-
-    const initAuth = async () => {
-        try {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-        } catch (error) {
-            console.error("Auth Error:", error);
-        }
-    };
-    initAuth();
-    
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-        setUser(u);
-    });
-    return () => unsubscribe();
-  }, []);
 
   // Handle Global Back Button for Page Navigation
   useEffect(() => {
@@ -1594,7 +1317,7 @@ const App = () => {
       );
       case 'about': return <AboutPage lang={lang} />;
       case 'timeline': return <TimelinePage lang={lang} />;
-      case 'services': return <ServicesPage lang={lang} user={user} />;
+      case 'services': return <ServicesPage lang={lang} />;
       case 'trustees': return <TrusteesPage lang={lang} />;
       case 'donate': return <DonatePage lang={lang} />;
       case 'contact': return <ContactPage lang={lang} />;
@@ -1616,9 +1339,6 @@ const App = () => {
       <main className="flex-grow">
         {renderPage()}
       </main>
-
-      {/* ADMIN MODAL */}
-      {showAdmin && <AdminModal onClose={() => setShowAdmin(false)} user={user} />}
 
       <footer className="bg-gray-900 text-gray-400 py-12 border-t-8 border-amber-500">
         <div className="container mx-auto px-4 text-center md:text-left">
@@ -1655,7 +1375,6 @@ const App = () => {
             
             <p className="text-xs flex items-center">
               Website built and managed by 
-              {/* HIDDEN LINK TO INSTAGRAM PROFILE */}
               <a 
                 href="https://www.instagram.com/simply.bhanu/" 
                 target="_blank" 
@@ -1665,14 +1384,6 @@ const App = () => {
               >
                 {TRUST_INFO.builder}
               </a>
-              {/* HIDDEN ADMIN TRIGGER */}
-              <button 
-                onClick={() => setShowAdmin(true)} 
-                className="ml-3 text-gray-700 hover:text-amber-500 transition-colors"
-                title="Admin Access"
-              >
-                <Lock className="w-3 h-3" />
-              </button>
             </p>
           </div>
         </div>
